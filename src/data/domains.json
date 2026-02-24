@@ -1,0 +1,241 @@
+[
+  {
+    "id": "computer-architecture-hardware",
+    "name": "Computer Architecture & Hardware",
+    "shortDescription": "How CPU, memory, storage and I/O devices communicate through electronic signals to perform input, processing and output.",
+    "definition": "Computer architecture defines how components such as the CPU, memory, storage and I/O devices are organized and communicate through electronic signals to carry out input, processing and output operations. It shapes overall system speed, functionality and reliability.",
+    "keySubtopics": [
+      "Digital logic and number systems (binary representation, Boolean algebra, combinational and sequential circuits)",
+      "Microarchitecture (CPU organization, registers, ALU design, instruction pipelining, RISC vs CISC)",
+      "Memory hierarchy (caches, main memory, virtual memory and storage systems)",
+      "Instruction Set Architecture (ISA), assembly language, addressing modes and instruction formats",
+      "Input/output systems (interrupts, Direct Memory Access, buses and controllers)",
+      "Parallel architectures (SIMD, MIMD, vector processors and multicore systems)"
+    ],
+    "estimatedLearningTime": "14–16 weeks (~3 credits)",
+    "approxHours": 135
+  },
+  {
+    "id": "programming-software-development",
+    "name": "Programming & Software Development",
+    "shortDescription": "Programming fundamentals, data structures and algorithms, software engineering practices and DevOps over multiple courses.",
+    "definition": "Programming and software development cover learning programming languages, problem-solving, data structures and algorithms, and the methods used to design, build, test and maintain software systems, including modern DevOps practices.",
+    "keySubtopics": [
+      "Programming fundamentals (variables, data types, control structures, functions, recursion, basic OOP, memory management, debugging)",
+      "Data structures and algorithms (arrays, linked lists, stacks, queues, trees, graphs, hashing, sorting and searching, dynamic programming, greedy algorithms, complexity analysis)",
+      "Software engineering and project management (SDLC, requirements analysis, design patterns, testing, version control, agile methods, documentation, code review)",
+      "DevOps and continuous delivery (Git workflows, CI/CD pipelines, Infrastructure as Code, containerization, orchestration, monitoring, DevSecOps)"
+    ],
+    "estimatedLearningTime": "1–2 years (several courses)",
+    "approxHours": 600
+  },
+  {
+    "id": "operating-systems",
+    "name": "Operating Systems",
+    "shortDescription": "System software that manages hardware resources, runs programs and provides an interface between users and hardware.",
+    "definition": "An operating system is system software that runs continuously as an interface between hardware and users. It manages CPU, memory, storage and I/O resources, runs programs and enforces fairness and security between processes.",
+    "keySubtopics": [
+      "Process management (processes, threads, CPU scheduling algorithms, context switching)",
+      "Memory management (segmentation, paging, virtual memory, page replacement algorithms)",
+      "File systems (directory structures, file allocation strategies, permissions)",
+      "Concurrency and synchronization (race conditions, mutual exclusion, semaphores, monitors)",
+      "Device management (I/O systems, buffering, interrupt handling)",
+      "Virtualization fundamentals at the OS level and containerization basics"
+    ],
+    "estimatedLearningTime": "14–16 weeks (~3 credits)",
+    "approxHours": 135
+  },
+  {
+    "id": "networks-internet",
+    "name": "Networks & Internet",
+    "shortDescription": "Computer networking fundamentals and web development, from OSI/TCP-IP to full‑stack web apps.",
+    "definition": "Computer networks connect multiple devices so they can transmit and share information, both locally and across the internet. The internet layers protocols such as TCP/IP and HTTP on top of these networks, and web development builds applications on this foundation.",
+    "keySubtopics": [
+      "Network types and architectures (LAN, WAN, WLAN, MAN, peer‑to‑peer vs client‑server)",
+      "OSI and TCP/IP models with common protocols (Ethernet, IP, TCP, UDP, HTTP, DNS, DHCP, FTP, SMTP, etc.)",
+      "IP addressing and subnetting, routing and switching hardware",
+      "Network hardware (routers, switches, modems, access points) and basic network security (firewalls, VPNs, IDS/IPS)",
+      "Web development front‑end (HTML, CSS, JavaScript, modern frameworks, responsive design)",
+      "Web development back‑end (server‑side languages, REST/GraphQL APIs, authentication/authorization, databases, full‑stack deployment)"
+    ],
+    "estimatedLearningTime": "14–16 weeks for networking plus 14–16 weeks for web development",
+    "approxHours": 270
+  },
+  {
+    "id": "databases-data-management",
+    "name": "Databases & Data Management",
+    "shortDescription": "Designing, querying and managing databases to store, protect and efficiently access structured data.",
+    "definition": "A database management system is software for creating and managing databases so that users can create, protect, read, update and delete data in organized structures while preserving integrity, concurrency and performance.",
+    "keySubtopics": [
+      "Data models (relational, hierarchical, network, object‑oriented)",
+      "SQL fundamentals (SELECT, INSERT, UPDATE, DELETE, joins, aggregate queries)",
+      "Schema design and normalization (ER modeling, normal forms)",
+      "Transaction management (ACID properties, concurrency control, locking, isolation levels)",
+      "Indexing and performance tuning (B‑trees, hashing, query optimization)",
+      "NoSQL databases (key‑value, document, columnar, graph) and data warehousing/big data concepts"
+    ],
+    "estimatedLearningTime": "14–16 weeks (~3 credits)",
+    "approxHours": 135
+  },
+  {
+    "id": "cybersecurity",
+    "name": "Cybersecurity",
+    "shortDescription": "Protecting systems, networks and data to preserve confidentiality, integrity and availability.",
+    "definition": "Cybersecurity is the practice of protecting systems, networks, devices and data from digital threats such as unauthorized access, attacks and breaches, with the goal of maintaining confidentiality, integrity and availability of information.",
+    "keySubtopics": [
+      "Cryptography (symmetric and asymmetric encryption, hashing, digital signatures, key exchange, TLS/SSL)",
+      "Network security (firewalls, IDS/IPS, secure protocols like HTTPS, SSH, VPNs)",
+      "Application security (secure coding, input validation, authentication, session management, penetration testing)",
+      "Operating system and host security (privilege management, patching, antivirus, endpoint protection)",
+      "Risk management and compliance (threat modeling, vulnerability assessment, security policies, incident response, frameworks like NIST CSF)",
+      "Human factors and social engineering"
+    ],
+    "estimatedLearningTime": "14–16 weeks (~3 credits) for a fundamentals course",
+    "approxHours": 135
+  },
+  {
+    "id": "cloud-computing-virtualization",
+    "name": "Cloud Computing & Virtualization",
+    "shortDescription": "On‑demand access to shared computing resources plus the virtualization technologies that power cloud platforms.",
+    "definition": "Cloud computing provides ubiquitous, convenient, on‑demand network access to a shared pool of configurable computing resources that can be rapidly provisioned and released with minimal management effort. Virtualization creates virtual versions of physical technologies such as operating systems, servers, storage devices or networks so multiple workloads can share hardware efficiently.",
+    "keySubtopics": [
+      "Cloud service models (IaaS, PaaS, SaaS) and deployment models (public, private, hybrid, community)",
+      "Virtualization technologies (hypervisors, virtual machines, containers and orchestration with Kubernetes)",
+      "Serverless computing and Function as a Service (FaaS)",
+      "Cloud storage and managed databases (object, block and database as a service)",
+      "Security, compliance and monitoring in cloud environments",
+      "Cost optimization and capacity planning"
+    ],
+    "estimatedLearningTime": "14–16 weeks (~3 credits), often combined with a virtualization course",
+    "approxHours": 135
+  },
+  {
+    "id": "data-science-statistics",
+    "name": "Data Science & Statistics",
+    "shortDescription": "Using scientific methods and statistical techniques to extract knowledge and insights from data.",
+    "definition": "Data science is an interdisciplinary field that uses scientific methods, processes and systems—grounded in statistics, computing and domain expertise—to extract knowledge and actionable insights from data.",
+    "keySubtopics": [
+      "Statistical foundations (descriptive statistics, probability, hypothesis testing, regression, Bayesian methods)",
+      "Data wrangling and cleaning (handling missing data, transformations, feature engineering)",
+      "Exploratory data analysis (visualization and summary statistics)",
+      "Machine learning basics (supervised, unsupervised and reinforcement learning, with links to the ML & AI domain)",
+      "Big data tools (Hadoop, Spark, distributed computing)",
+      "Data visualization and ethics (visualization tools, privacy, fairness and bias)"
+    ],
+    "estimatedLearningTime": "1–2 semesters (~2 × 3 credits)",
+    "approxHours": 200
+  },
+  {
+    "id": "machine-learning-ai",
+    "name": "Machine Learning & Artificial Intelligence",
+    "shortDescription": "Algorithms and models that let computers learn from data and imitate intelligent behavior.",
+    "definition": "Machine learning is a subfield of artificial intelligence that gives computers the ability to learn patterns from data without being explicitly programmed. AI more broadly concerns systems that imitate intelligent human behavior and can make predictions or decisions.",
+    "keySubtopics": [
+      "Supervised learning (regression, classification, SVMs, decision trees, random forests, gradient boosting)",
+      "Unsupervised learning (clustering, dimensionality reduction, anomaly detection)",
+      "Reinforcement learning (agents, rewards, value functions, Q‑learning)",
+      "Neural networks and deep learning (MLPs, CNNs, RNNs, transformers)",
+      "Model evaluation and tuning (cross‑validation, overfitting vs underfitting, hyperparameter tuning)",
+      "Deployment and MLOps (serving models, monitoring and lifecycle management)"
+    ],
+    "estimatedLearningTime": "1–2 semesters (~2 × 3 credits)",
+    "approxHours": 200
+  },
+  {
+    "id": "blockchain-decentralized-systems",
+    "name": "Blockchain & Decentralized Systems",
+    "shortDescription": "Tamper‑resistant distributed ledgers, consensus protocols and smart‑contract based applications.",
+    "definition": "A blockchain is a collaborative, tamper‑resistant ledger where transactional records are grouped into blocks linked by unique identifiers from previous blocks, making unauthorized changes evident. It underpins decentralized systems and applications without a single controlling authority.",
+    "keySubtopics": [
+      "Distributed ledger technology (peer‑to‑peer networks, nodes, decentralization)",
+      "Consensus algorithms (Proof of Work, Proof of Stake, PBFT and others)",
+      "Cryptographic foundations (hashing, Merkle trees, digital signatures)",
+      "Smart contracts and platforms (e.g., Ethereum and Solidity)",
+      "Public vs private blockchains (Bitcoin, Ethereum, Hyperledger and similar ecosystems)",
+      "Decentralized applications (dApps), scalability, security and energy considerations"
+    ],
+    "estimatedLearningTime": "8–12 weeks (short course)",
+    "approxHours": 90
+  },
+  {
+    "id": "internet-of-things",
+    "name": "Internet of Things (IoT)",
+    "shortDescription": "Networks of sensor‑equipped devices that exchange data with each other and the cloud.",
+    "definition": "The Internet of Things is a network of interrelated devices embedded with sensors, software and connectivity that allows them to collect and exchange data with other devices and cloud services, often without direct human‑to‑human or human‑computer interaction.",
+    "keySubtopics": [
+      "Embedded systems and microcontrollers (sensors, actuators, Arduino, Raspberry Pi)",
+      "Connectivity options (Wi‑Fi, Bluetooth, Zigbee, LoRaWAN, NB‑IoT)",
+      "IoT protocols and standards (MQTT, CoAP, HTTP variants)",
+      "Edge computing and gateways (local processing to reduce latency and bandwidth)",
+      "Security and privacy in IoT (authentication, encryption, secure provisioning and updates)",
+      "Application domains (smart homes, industrial IoT, healthcare, agriculture and more)"
+    ],
+    "estimatedLearningTime": "8–12 weeks (specialized course)",
+    "approxHours": 90
+  },
+  {
+    "id": "virtualization-containerization",
+    "name": "Virtualization & Containerization",
+    "shortDescription": "Creating virtual machines and containers to run multiple workloads efficiently on shared hardware.",
+    "definition": "Virtualization is the creation of virtual versions of physical technologies—such as operating systems, servers, storage devices or network resources—so that multiple operating systems and applications can run on the same physical machine. Containerization packages applications and their dependencies in lightweight, portable containers.",
+    "keySubtopics": [
+      "Hypervisors (Type 1 and Type 2) and virtual machine concepts",
+      "Differences and trade‑offs between virtual machines and containers",
+      "Containerization fundamentals (Docker images, registries, container networking)",
+      "Orchestration platforms (Kubernetes, Docker Swarm, Nomad)",
+      "Serverless computing patterns (functions executed on demand)",
+      "Practical lab skills using virtualization and container orchestration tools"
+    ],
+    "estimatedLearningTime": "~1 semester (~3 credits), often paired with cloud computing",
+    "approxHours": 135
+  },
+  {
+    "id": "hci-ux",
+    "name": "Human‑Computer Interaction (HCI) & User Experience",
+    "shortDescription": "Designing usable, accessible interfaces and experiences based on how people interact with technology.",
+    "definition": "User Experience refers to the overall feeling and journey that users have when interacting with a product, application or system. Human‑Computer Interaction studies these interactions to design systems that are usable, accessible and aligned with human needs.",
+    "keySubtopics": [
+      "UX design principles (usability, accessibility, consistency, feedback, error tolerance)",
+      "User research and personas (surveys, interviews, observations, empathy mapping)",
+      "Information architecture and wireframing",
+      "Interaction design and prototyping (low‑fidelity and high‑fidelity, iterative testing)",
+      "Accessibility standards (e.g., WCAG) and inclusive design practices",
+      "Design tools and evaluation methods (Figma/Sketch/XD, usability testing, heuristic evaluation, A/B testing)"
+    ],
+    "estimatedLearningTime": "8–12 weeks (course)",
+    "approxHours": 90
+  },
+  {
+    "id": "immersive-technologies-ar-vr",
+    "name": "Immersive Technologies (AR/VR)",
+    "shortDescription": "Augmented and virtual reality systems that overlay or replace the real world with digital environments.",
+    "definition": "Augmented Reality overlays digital information onto the real world, typically via smartphone or headset, while Virtual Reality creates fully artificial environments that immerse the user. Together they form a family of immersive technologies.",
+    "keySubtopics": [
+      "AR frameworks and platforms (ARKit, ARCore, WebXR)",
+      "VR platforms and hardware (Oculus/Meta Quest, HTC Vive, PlayStation VR)",
+      "3D graphics and rendering concepts (coordinate systems, shaders, game engines like Unity and Unreal)",
+      "Interaction techniques (gaze, gesture, controllers, haptics)",
+      "Spatial computing, mapping and environment understanding",
+      "Applications and challenges (gaming, training, education, safety, motion sickness, privacy, cost)"
+    ],
+    "estimatedLearningTime": "6–8 weeks (focused course)",
+    "approxHours": 60
+  },
+  {
+    "id": "ethics-privacy-law",
+    "name": "Ethics, Privacy & Law in Technology",
+    "shortDescription": "Ethical, legal and regulatory frameworks that govern how technology is designed and used.",
+    "definition": "As technology increasingly permeates society, ethical considerations, privacy protections and legal frameworks become central to responsible design and deployment. This domain examines how laws, regulations and ethical guidelines shape technology’s impact.",
+    "keySubtopics": [
+      "Data privacy laws and concepts (GDPR, CCPA, DPDP, consent, data minimization, user rights)",
+      "Intellectual property (copyrights, patents, open‑source licenses)",
+      "Bias and fairness in algorithms (discrimination, transparency, accountability in AI systems)",
+      "Cyberlaw and regulation (digital rights, liability, jurisdiction for online activities)",
+      "Ethical hacking and responsible disclosure",
+      "Sustainability and environmental impacts of technology"
+    ],
+    "estimatedLearningTime": "6–8 weeks (short course)",
+    "approxHours": 60
+  }
+]
+
