@@ -29,7 +29,7 @@ jobs:
 
       - name: Write OpenClaw config (JSON5)
         run: |
-          cat > "$RUNNER_TEMP/openclaw.json5" <<JSON5
+          cat > "$RUNNER_TEMP/openclaw.json5" <<'JSON5'
           {
             agents: {
               defaults: {
@@ -37,15 +37,32 @@ jobs:
                 repoRoot: "${GITHUB_WORKSPACE}",
                 skipBootstrap: true,
                 sandbox: { mode: "off" },
-                model: { primary: "openrouter/free" }
+
+                // Use a specific tool-capable OpenRouter model
+                models: {
+                  "openrouter/qwen/qwen3-coder:free": {}
+                },
+                model: {
+                  primary: "openrouter/qwen/qwen3-coder:free"
+                }
               }
             },
+
+            // Tool policy: ONLY file edits. No exec/web/browser/etc.
             tools: {
-              profile: "coding",
-              deny: ["group:web","group:ui","group:messaging","group:automation","group:nodes"]
+              allow: ["read", "write", "edit"],
+              deny: ["group:runtime", "group:web", "group:ui", "group:messaging", "group:automation", "group:nodes"]
             }
           }
           JSON5
+
+      - name: Debug effective sandbox/tool policy
+        env:
+          OPENCLAW_CONFIG_PATH: ${{ runner.temp }}/openclaw.json5
+          OPENCLAW_HOME: ${{ runner.temp }}/openclaw-home
+          OPENCLAW_STATE_DIR: ${{ runner.temp }}/openclaw-state
+        run: |
+          openclaw sandbox explain --json || true
 
       - name: Build OpenClaw prompt
         env:
@@ -56,8 +73,15 @@ jobs:
           import os, pathlib
           title = os.environ.get("ISSUE_TITLE","")
           body  = os.environ.get("ISSUE_BODY","")
+
           prompt = f"""
-          You are editing a React 18 + Webpack app.
+          You are an AI coding agent operating inside a Git repo workspace.
+
+          IMPORTANT:
+          - You MUST use the tools: read, edit, write.
+          - Start by reading src/App.jsx.
+          - Then EDIT/WRITE src/App.jsx to implement the feature (do not just describe steps).
+          - No new dependencies.
 
           TASK:
           {title}
@@ -65,18 +89,17 @@ jobs:
           DETAILS FROM ISSUE:
           {body}
 
-          IMPLEMENTATION REQUIREMENTS (IMPORTANT):
-          - Implement a Dark/Light mode toggle.
+          IMPLEMENTATION REQUIREMENTS:
+          - Add a Dark/Light mode toggle.
           - Default = Dark (keep current look as Dark).
-          - Persist choice in localStorage (remember after refresh).
-          - Only change what’s necessary (prefer editing src/App.jsx since styles are inline there).
-          - Do NOT add new dependencies.
+          - Persist theme in localStorage (remember after refresh).
           - Add a small toggle button in the header (near navigation).
-          - Keep it responsive (works on mobile layout too).
-          - After edits, reply with a short summary of what files you changed.
-          """
+          - Keep it responsive on mobile layout too.
+          - After edits, reply with a short summary of files changed.
+          """.strip()
+
           path = pathlib.Path(os.environ["RUNNER_TEMP"]) / "prompt.txt"
-          path.write_text(prompt.strip() + "\n", encoding="utf-8")
+          path.write_text(prompt + "\n", encoding="utf-8")
           print("Wrote", path)
           PY
 
@@ -85,15 +108,38 @@ jobs:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           OPENCLAW_CONFIG_PATH: ${{ runner.temp }}/openclaw.json5
           OPENCLAW_HOME: ${{ runner.temp }}/openclaw-home
+          OPENCLAW_STATE_DIR: ${{ runner.temp }}/openclaw-state
         run: |
           openclaw agent --local --json --verbose full --timeout 600 \
             --message "$(cat "$RUNNER_TEMP/prompt.txt")" \
             | tee "$RUNNER_TEMP/openclaw_output.json"
 
+      - name: Show whether tools were used (quick debug)
+        run: |
+          python - <<'PY'
+          import json, pathlib
+          p = pathlib.Path("${RUNNER_TEMP}") / "openclaw_output.json"
+          if not p.exists():
+            print("No openclaw_output.json found")
+            raise SystemExit(0)
+          try:
+            data = json.loads(p.read_text(encoding="utf-8"))
+          except Exception as e:
+            print("Could not parse JSON:", e)
+            print(p.read_text(encoding="utf-8")[:2000])
+            raise SystemExit(0)
+
+          # Best-effort: search for tool names in the JSON payload
+          s = json.dumps(data)
+          hits = [t for t in ["read","edit","write","apply_patch","exec","web_search","browser"] if t in s]
+          print("Tool keywords present in output:", hits)
+          PY
+
       - name: Ensure agent made changes
         run: |
           if git diff --quiet; then
             echo "❌ OpenClaw did not change any files."
+            echo "Hint: open Actions logs and check the OpenClaw output + sandbox explain."
             exit 1
           fi
 
