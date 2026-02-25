@@ -3,13 +3,7 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
-
-const heroStyles = {
-  display: "grid",
-  gridTemplateColumns: "minmax(0, 3fr) minmax(0, 2fr)",
-  gap: "2.5rem",
-  alignItems: "center"
-};
+import { useIsMobile } from "../hooks/useIsMobile";
 
 const heroLeftStyles = {
   display: "flex",
@@ -98,6 +92,16 @@ const statCardStyles = {
 };
 
 export default function HomePage() {
+  // Detect mobile screens so we can collapse the two‑column hero into a vertical stack.
+  const isMobile = useIsMobile();
+
+  const heroStyles = {
+    display: "grid",
+    gridTemplateColumns: isMobile ? "minmax(0, 1fr)" : "minmax(0, 3fr) minmax(0, 2fr)",
+    gap: isMobile ? "1.75rem" : "2.5rem",
+    alignItems: "center"
+  };
+
   return (
     <section style={heroStyles}>
       {/* Left side: explanation of what Tech Navigator is for. */}
@@ -128,8 +132,8 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Right side: compact dashboard‑style summary using static text for now. */}
-      <aside style={heroRightStyles}>
+      {/* Right side: compact dashboard‑style summary using static text for now. On mobile this appears below the text. */}
+      <aside style={{ ...heroRightStyles, marginTop: isMobile ? "0.5rem" : 0 }}>
         <div style={{ fontSize: "0.85rem", color: "#e5e7eb", fontWeight: 500 }}>
           Your technology overview at a glance
         </div>

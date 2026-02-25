@@ -3,6 +3,7 @@
 
 import React from "react";
 import domains from "../data/domains.json";
+import { useIsMobile } from "../hooks/useIsMobile";
 
 const headerStyles = {
   marginBottom: "1.5rem"
@@ -20,9 +21,8 @@ const subtitleStyles = {
   maxWidth: "40rem"
 };
 
-const gridStyles = {
+const gridStylesBase = {
   display: "grid",
-  gridTemplateColumns: "minmax(0, 2fr) minmax(0, 3fr)",
   gap: "1.5rem"
 };
 
@@ -96,6 +96,13 @@ const yearlyLoad = 600;
 const yearsAtPartTimePace = totalHours / yearlyLoad;
 
 export default function DashboardPage() {
+  // Collapse the two‑column grid into a vertical stack on smaller screens.
+  const isMobile = useIsMobile();
+  const gridStyles = {
+    ...gridStylesBase,
+    gridTemplateColumns: isMobile ? "minmax(0, 1fr)" : "minmax(0, 2fr) minmax(0, 3fr)"
+  };
+
   return (
     <section>
       <header style={headerStyles}>

@@ -3,6 +3,7 @@
 
 import React from "react";
 import { Routes, Route, NavLink } from "react-router-dom";
+import { useIsMobile } from "./hooks/useIsMobile";
 
 import HomePage from "./pages/HomePage";
 import DomainListPage from "./pages/DomainListPage";
@@ -18,11 +19,10 @@ const appStyles = {
   color: "#e5e7eb"
 };
 
-const navStyles = {
+const navBaseStyles = {
   display: "flex",
   alignItems: "center",
   justifyContent: "space-between",
-  padding: "1rem 2rem",
   borderBottom: "1px solid rgba(148, 163, 184, 0.25)",
   position: "sticky",
   top: 0,
@@ -31,7 +31,7 @@ const navStyles = {
   backgroundColor: "rgba(15, 23, 42, 0.85)"
 };
 
-const navLinksContainerStyles = {
+const navLinksContainerBaseStyles = {
   display: "flex",
   gap: "1rem"
 };
@@ -53,13 +53,32 @@ const navLinkClass = ({ isActive }) => ({
   color: isActive ? "#e0f2fe" : "#cbd5f5"
 });
 
-const mainStyles = {
-  padding: "2rem 2.5rem 3rem",
+const mainBaseStyles = {
   maxWidth: "1120px",
   margin: "0 auto"
 };
 
 export default function App() {
+  const isMobile = useIsMobile();
+
+  const navStyles = {
+    ...navBaseStyles,
+    padding: isMobile ? "0.75rem 1rem" : "1rem 2rem",
+    flexDirection: isMobile ? "column" : "row",
+    alignItems: isMobile ? "flex-start" : "center",
+    gap: isMobile ? "0.75rem" : 0
+  };
+
+  const navLinksContainerStyles = {
+    ...navLinksContainerBaseStyles,
+    flexWrap: isMobile ? "wrap" : "nowrap"
+  };
+
+  const mainStyles = {
+    ...mainBaseStyles,
+    padding: isMobile ? "1.2rem 1.1rem 2rem" : "2rem 2.5rem 3rem"
+  };
+
   return (
     <div style={appStyles}>
       {/* Global navigation shared across all pages. */}
