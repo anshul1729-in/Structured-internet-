@@ -5,7 +5,7 @@
   "description": "Tech Navigator – a React app that helps explore technology domains, definitions, subtopics and learning paths.",
   "scripts": {
     "start": "webpack serve --mode development --open",
-    "build": "npx webpack --mode production"
+   "build": "node ./node_modules/webpack/bin/webpack.js --mode production"
   },
   "dependencies": {
     "react": "^18.3.0",
