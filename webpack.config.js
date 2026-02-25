@@ -1,7 +1,8 @@
 // Minimal Webpack configuration for the Tech Navigator React app.
-// This handles JSX via Babel and serves the bundle through webpack-dev-server in development.
+// This handles JSX via Babel and serves/generates index.html via HtmlWebpackPlugin.
 
 const path = require("path");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
   // Our single entry file for the client bundle.
@@ -11,7 +12,8 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, "dist"),
     filename: "bundle.js",
-    clean: true
+    clean: true,
+    publicPath: "/"
   },
 
   module: {
@@ -35,10 +37,18 @@ module.exports = {
     extensions: [".js", ".jsx"]
   },
 
+  plugins: [
+    // This plugin takes our index.html template and injects the <script> tag for bundle.js,
+    // then writes the final HTML file into /dist for production.
+    new HtmlWebpackPlugin({
+      template: path.resolve(__dirname, "index.html")
+    })
+  ],
+
   devServer: {
-    // Serve index.html from the project root and let React Router handle client-side routes.
+    // Serve from the in-memory /dist bundle and let React Router handle client-side routes.
     static: {
-      directory: __dirname
+      directory: path.resolve(__dirname, "dist")
     },
     historyApiFallback: true,
     port: 3000,
