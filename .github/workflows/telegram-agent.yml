@@ -1,0 +1,236 @@
+name: Telegram Agent (Issue -> PR)
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: read
+
+jobs:
+  issue_to_pr:
+    if: startsWith(github.event.issue.title, 'Agent task:')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Print workspace info (before OpenClaw)
+        working-directory: ${{ github.workspace }}
+        run: |
+          echo "=== BEFORE OpenClaw ==="
+          echo "::group::pwd"
+          pwd
+          echo "::endgroup::"
+
+          echo "::group::ls -R"
+          ls -R
+          echo "::endgroup::"
+
+          echo "::group::git status"
+          git status
+          echo "::endgroup::"
+
+      - name: Setup Node (OpenClaw needs 22+)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install OpenClaw CLI
+        run: npm install -g openclaw@latest
+
+      - name: Write OpenClaw config (JSON5)
+        env:
+          GITHUB_WORKSPACE: ${{ github.workspace }}
+        run: |
+          cat > "$RUNNER_TEMP/openclaw.json5" <<JSON5
+          {
+            agents: {
+              defaults: {
+                workspace: "${GITHUB_WORKSPACE}",
+                repoRoot: "${GITHUB_WORKSPACE}",
+                skipBootstrap: true,
+                sandbox: { mode: "off" },
+
+                // Use a specific tool-capable OpenRouter model
+                models: {
+                  "openrouter/qwen/qwen3-coder:free": {}
+                },
+                model: {
+                  primary: "openrouter/qwen/qwen3-coder:free"
+                }
+              }
+            },
+
+            // Tool policy: ONLY file edits. No exec/web/browser/etc.
+            tools: {
+              allow: ["read", "write", "edit"],
+              deny: ["group:runtime", "group:web", "group:ui", "group:messaging", "group:automation", "group:nodes"]
+            }
+          }
+          JSON5
+
+      - name: Show OpenClaw config
+        env:
+          OPENCLAW_CONFIG_PATH: ${{ runner.temp }}/openclaw.json5
+        run: |
+          echo "=== OpenClaw config at $OPENCLAW_CONFIG_PATH ==="
+          if [ -f "$OPENCLAW_CONFIG_PATH" ]; then
+            cat "$OPENCLAW_CONFIG_PATH"
+          else
+            echo "Config file not found."
+          fi
+
+      - name: Debug effective sandbox/tool policy
+        env:
+          OPENCLAW_CONFIG_PATH: ${{ runner.temp }}/openclaw.json5
+          OPENCLAW_HOME: ${{ runner.temp }}/openclaw-home
+          OPENCLAW_STATE_DIR: ${{ runner.temp }}/openclaw-state
+        run: |
+          openclaw sandbox explain --json || true
+
+      - name: Build OpenClaw prompt
+        env:
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        run: |
+          python - <<'PY'
+          import os, pathlib
+          title = os.environ.get("ISSUE_TITLE", "")
+          body = os.environ.get("ISSUE_BODY", "")
+
+          prompt = f"""
+          You are an AI coding agent operating inside a Git repo workspace.
+
+          IMPORTANT:
+          - You MUST use the tools: read, edit, write.
+          - Start by reading src/App.jsx.
+          - Then EDIT/WRITE src/App.jsx to implement the feature (do not just describe steps).
+          - No new dependencies.
+
+          TASK:
+          {title}
+
+          DETAILS FROM ISSUE:
+          {body}
+
+          IMPLEMENTATION REQUIREMENTS:
+          - Add a Dark/Light mode toggle.
+          - Default = Dark (keep current look as Dark).
+          - Persist theme in localStorage (remember after refresh).
+          - Add a small toggle button in the header (near navigation).
+          - Keep it responsive on mobile layout too.
+          - After edits, reply with a short summary of files changed.
+          """.strip()
+
+          path = pathlib.Path(os.environ["RUNNER_TEMP"]) / "prompt.txt"
+          path.write_text(prompt + "\n", encoding="utf-8")
+          print("Wrote", path)
+          PY
+
+      - name: Run OpenClaw agent to implement the change
+        working-directory: ${{ github.workspace }}
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENCLAW_CONFIG_PATH: ${{ runner.temp }}/openclaw.json5
+          OPENCLAW_HOME: ${{ runner.temp }}/openclaw-home
+          OPENCLAW_STATE_DIR: ${{ runner.temp }}/openclaw-state
+        run: |
+          set -euo pipefail
+
+          echo "=== GITHUB_WORKSPACE ==="
+          echo "$GITHUB_WORKSPACE"
+
+          # Run OpenClaw against the real Git workspace and capture full output.
+          openclaw agent --local --json --verbose full --timeout 600 \
+            --workspace "$GITHUB_WORKSPACE" \
+            --message "$(cat "$RUNNER_TEMP/prompt.txt")" \
+            2>&1 | tee "$RUNNER_TEMP/openclaw_output.log"
+
+      - name: Show whether tools were used (quick debug)
+        env:
+          RUNNER_TEMP: ${{ runner.temp }}
+        run: |
+          python - <<'PY'
+          import json, pathlib, os
+          p = pathlib.Path(os.environ["RUNNER_TEMP"]) / "openclaw_output.log"
+          if not p.exists():
+            print("No openclaw_output.log found")
+            raise SystemExit(0)
+
+          text = p.read_text(encoding="utf-8", errors="ignore")
+          try:
+            data = json.loads(text)
+          except Exception as e:
+            print("Could not parse JSON, showing first 2000 chars:")
+            print(text[:2000])
+            raise SystemExit(0)
+
+          s = json.dumps(data)
+          hits = [t for t in ["read", "edit", "write", "apply_patch", "exec", "web_search", "browser"] if t in s]
+          print("Tool keywords present in output:", hits)
+          PY
+
+      - name: Debug AFTER OpenClaw
+        working-directory: ${{ github.workspace }}
+        env:
+          RUNNER_TEMP: ${{ runner.temp }}
+        run: |
+          echo "=== AFTER OpenClaw ==="
+
+          echo "::group::pwd"
+          pwd
+          echo "::endgroup::"
+
+          echo "::group::ls -R"
+          ls -R
+          echo "::endgroup::"
+
+          echo "::group::git status"
+          git status
+          echo "::endgroup::"
+
+          echo "::group::Last 200 lines of OpenClaw output"
+          if [ -f "$RUNNER_TEMP/openclaw_output.log" ]; then
+            tail -n 200 "$RUNNER_TEMP/openclaw_output.log"
+          else
+            echo "openclaw_output.log not found"
+          fi
+          echo "::endgroup::"
+
+      - name: Ensure agent made changes
+        working-directory: ${{ github.workspace }}
+        run: |
+          echo "::group::git diff"
+          git diff || true
+          echo "::endgroup::"
+
+          if git diff --quiet; then
+            echo "❌ OpenClaw did not change any files."
+            echo "Hint: open Actions logs and check the OpenClaw output + sandbox explain."
+            exit 1
+          fi
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Build (must pass)
+        run: npm run build
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "Agent: implement task #${{ github.event.issue.number }}"
+          title: "Agent PR for issue #${{ github.event.issue.number }}"
+          body: |
+            This PR was created automatically from issue #${{ github.event.issue.number }}.
+            OpenClaw ran in GitHub Actions with OpenRouter.
+          branch: agent/issue-${{ github.event.issue.number }}
+          delete-branch: true
+
