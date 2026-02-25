@@ -18,6 +18,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install deps
+        run: npm ci
+
       - name: Write task into a log (dummy change)
         run: |
           mkdir -p agent
@@ -26,6 +35,9 @@ jobs:
           echo "${{ github.event.issue.body }}" >> agent/tasks.md
           echo "" >> agent/tasks.md
           echo "---" >> agent/tasks.md
+
+      - name: Build (must pass)
+        run: npm run build
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
