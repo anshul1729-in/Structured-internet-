@@ -18,8 +18,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # OpenClaw needs Node >= 22
-      - name: Setup Node
+      - name: Setup Node (OpenClaw needs 22+)
         uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -30,29 +29,23 @@ jobs:
 
       - name: Write OpenClaw config (JSON5)
         run: |
-          cat > "$RUNNER_TEMP/openclaw.json5" <<'JSON5'
+          cat > "$RUNNER_TEMP/openclaw.json5" <<JSON5
           {
             agents: {
               defaults: {
-                workspace: "__WORKSPACE__",
+                workspace: "${GITHUB_WORKSPACE}",
+                repoRoot: "${GITHUB_WORKSPACE}",
                 skipBootstrap: true,
-                model: { primary: "openrouter/free" },
-              },
+                sandbox: { mode: "off" },
+                model: { primary: "openrouter/free" }
+              }
             },
             tools: {
               profile: "coding",
-              deny: [
-                "group:runtime",      // no exec/bash/process
-                "group:web",          // no web_search/web_fetch
-                "group:ui",           // no browser/canvas
-                "group:messaging",    // no message tool
-                "group:automation",   // no cron/gateway
-                "group:nodes",        // no device/node tools
-              ],
-            },
+              deny: ["group:web","group:ui","group:messaging","group:automation","group:nodes"]
+            }
           }
           JSON5
-          sed -i "s|__WORKSPACE__|$GITHUB_WORKSPACE|g" "$RUNNER_TEMP/openclaw.json5"
 
       - name: Build OpenClaw prompt
         env:
@@ -60,12 +53,11 @@ jobs:
           ISSUE_BODY: ${{ github.event.issue.body }}
         run: |
           python - <<'PY'
-          import os, textwrap, pathlib
+          import os, pathlib
           title = os.environ.get("ISSUE_TITLE","")
           body  = os.environ.get("ISSUE_BODY","")
           prompt = f"""
           You are editing a React 18 + Webpack app.
-          Repo workspace is already mounted as your workspace.
 
           TASK:
           {title}
@@ -94,7 +86,8 @@ jobs:
           OPENCLAW_CONFIG_PATH: ${{ runner.temp }}/openclaw.json5
           OPENCLAW_HOME: ${{ runner.temp }}/openclaw-home
         run: |
-          openclaw agent --local --json --timeout 240 --message "$(cat "$RUNNER_TEMP/prompt.txt")" \
+          openclaw agent --local --json --verbose full --timeout 600 \
+            --message "$(cat "$RUNNER_TEMP/prompt.txt")" \
             | tee "$RUNNER_TEMP/openclaw_output.json"
 
       - name: Ensure agent made changes
