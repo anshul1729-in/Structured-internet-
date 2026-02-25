@@ -18,23 +18,94 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # OpenClaw needs Node >= 22
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
+
+      - name: Install OpenClaw CLI
+        run: npm install -g openclaw@latest
+
+      - name: Write OpenClaw config (JSON5)
+        run: |
+          cat > "$RUNNER_TEMP/openclaw.json5" <<'JSON5'
+          {
+            agents: {
+              defaults: {
+                workspace: "__WORKSPACE__",
+                skipBootstrap: true,
+                model: { primary: "openrouter/free" },
+              },
+            },
+            tools: {
+              profile: "coding",
+              deny: [
+                "group:runtime",      // no exec/bash/process
+                "group:web",          // no web_search/web_fetch
+                "group:ui",           // no browser/canvas
+                "group:messaging",    // no message tool
+                "group:automation",   // no cron/gateway
+                "group:nodes",        // no device/node tools
+              ],
+            },
+          }
+          JSON5
+          sed -i "s|__WORKSPACE__|$GITHUB_WORKSPACE|g" "$RUNNER_TEMP/openclaw.json5"
+
+      - name: Build OpenClaw prompt
+        env:
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        run: |
+          python - <<'PY'
+          import os, textwrap, pathlib
+          title = os.environ.get("ISSUE_TITLE","")
+          body  = os.environ.get("ISSUE_BODY","")
+          prompt = f"""
+          You are editing a React 18 + Webpack app.
+          Repo workspace is already mounted as your workspace.
+
+          TASK:
+          {title}
+
+          DETAILS FROM ISSUE:
+          {body}
+
+          IMPLEMENTATION REQUIREMENTS (IMPORTANT):
+          - Implement a Dark/Light mode toggle.
+          - Default = Dark (keep current look as Dark).
+          - Persist choice in localStorage (remember after refresh).
+          - Only change what’s necessary (prefer editing src/App.jsx since styles are inline there).
+          - Do NOT add new dependencies.
+          - Add a small toggle button in the header (near navigation).
+          - Keep it responsive (works on mobile layout too).
+          - After edits, reply with a short summary of what files you changed.
+          """
+          path = pathlib.Path(os.environ["RUNNER_TEMP"]) / "prompt.txt"
+          path.write_text(prompt.strip() + "\n", encoding="utf-8")
+          print("Wrote", path)
+          PY
+
+      - name: Run OpenClaw agent to implement the change
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENCLAW_CONFIG_PATH: ${{ runner.temp }}/openclaw.json5
+          OPENCLAW_HOME: ${{ runner.temp }}/openclaw-home
+        run: |
+          openclaw agent --local --json --timeout 240 --message "$(cat "$RUNNER_TEMP/prompt.txt")" \
+            | tee "$RUNNER_TEMP/openclaw_output.json"
+
+      - name: Ensure agent made changes
+        run: |
+          if git diff --quiet; then
+            echo "❌ OpenClaw did not change any files."
+            exit 1
+          fi
 
       - name: Install deps
         run: npm ci
-
-      - name: Write task into a log (dummy change)
-        run: |
-          mkdir -p agent
-          echo "## Task from issue #${{ github.event.issue.number }}" >> agent/tasks.md
-          echo "" >> agent/tasks.md
-          echo "${{ github.event.issue.body }}" >> agent/tasks.md
-          echo "" >> agent/tasks.md
-          echo "---" >> agent/tasks.md
 
       - name: Build (must pass)
         run: npm run build
@@ -42,9 +113,10 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
-          commit-message: "Agent: log task #${{ github.event.issue.number }}"
+          commit-message: "Agent: implement task #${{ github.event.issue.number }}"
           title: "Agent PR for issue #${{ github.event.issue.number }}"
           body: |
             This PR was created automatically from issue #${{ github.event.issue.number }}.
+            OpenClaw ran in GitHub Actions with OpenRouter.
           branch: agent/issue-${{ github.event.issue.number }}
           delete-branch: true
